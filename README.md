@@ -1,1 +1,1 @@
-Hi, I'm Michael Dunn. This is a website built with the [Jekyll "Just The Docs" theme](https://github.com/just-the-docs/just-the-docs) to host any projects I'm working on and my thoughts on a variety of technologies including ML and cybersecurity. I hope you enjoy my writings!
+This is a website built with the [Jekyll "Just The Docs" theme](https://github.com/just-the-docs/just-the-docs) to host any projects I'm working on and my thoughts on a variety of technologies including ML and cybersecurity.
