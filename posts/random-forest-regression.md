@@ -7,6 +7,8 @@ tags: [machine-learning,kaggle,data]
 category: machine learning
 ---
 
+You can read the code for this project on my [Github](https://github.com/mdunn99/housing-prices-competition).
+
 # Random Forest Regression - Hyperparameters and Feature Selection
 It was earlier last month when I decided to get a head-start on learning how to build machine learning models and manipulate datasets using libraries like pandas and numpy. [Kaggle](https://www.kaggle.com/), the excellent dataset resource, it turns out, also provides in-depth courses and challenges to stimulate the exact kinds of things I wanted to get involved in. Their short ["Intro to Machine Learning" course](https://www.kaggle.com/learn/intro-to-machine-learning) was an excellent primer for building a simple model leveraging the SciKit sklearn Python libraries.
 
@@ -14,9 +16,8 @@ Completing this course brought me to a page where I was able to submit my own mo
 
 After completing this project, I became very familiar with the train_test_split method of building machine learning models and the process of training -> fitting, training -> fitting. I learned how looping a training process with incremental changes to the training model will yield optimal results - things like proper feature selection and hyperparameter tuning.
 
-You can read the code for this project on my [Github](https://github.com/mdunn99/housing-prices-competition).
+---
 
-# Beginning
 I encountered a few problems throughout this project:
 1. Most of the features from the dataset were categorical, non-integer data. How can a random forest make sense of textual data?
 2. How could I select hyperparameters more effectively - less manually?
@@ -76,11 +77,8 @@ importances = model.feature_importances_
 ![](/assets/feature_importances_wrt_feature.png)
 *Top 20 features by importance (80 total were selected). The steep dropoff shows how concentrated predictive power is in just a few features.*
 
-# Conclusion
+---
+
 This project is the first of many in my exploration of machine learning models and their optimization. Exploring different approaches to feature selection, from manual sliding windows to sklearn's built-in importance scores, taught me the value of leveraging well-tested libraries. I also learned about the power of continuous model fitting and doing so in a results-oriented way, using mean absolute error as one method of measuring effectiveness.
 
 Coming away from this project had me wondering if a random forest regressor is truly ideal for this project. What other ensemble learning methods could I try? In the future, I'll examine other ensemble methods like kernel methods or gradient boosting and try to understand how each can be used for different kinds of applications.
-
----
-
-Thank you for reading!
