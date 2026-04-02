@@ -6,48 +6,76 @@
     <description>Recent content in Tags on </description>
     <generator>Hugo</generator>
     <language>en</language>
-    <lastBuildDate>Wed, 14 Jun 2017 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 30 Jan 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="//localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Tutorial</title>
-      <link>//localhost:1313/tags/tutorial/</link>
-      <pubDate>Wed, 14 Jun 2017 00:00:00 +0000</pubDate>
-      <guid>//localhost:1313/tags/tutorial/</guid>
+      <title>Data</title>
+      <link>//localhost:1313/tags/data/</link>
+      <pubDate>Fri, 30 Jan 2026 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/tags/data/</guid>
       <description></description>
     </item>
     <item>
-      <title>Blogdown</title>
-      <link>//localhost:1313/tags/blogdown/</link>
-      <pubDate>Sun, 14 Feb 2016 00:00:00 +0000</pubDate>
-      <guid>//localhost:1313/tags/blogdown/</guid>
+      <title>Kaggle</title>
+      <link>//localhost:1313/tags/kaggle/</link>
+      <pubDate>Fri, 30 Jan 2026 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/tags/kaggle/</guid>
       <description></description>
     </item>
     <item>
-      <title>Markdown</title>
-      <link>//localhost:1313/tags/markdown/</link>
-      <pubDate>Sun, 14 Feb 2016 00:00:00 +0000</pubDate>
-      <guid>//localhost:1313/tags/markdown/</guid>
+      <title>Machine-Learning</title>
+      <link>//localhost:1313/tags/machine-learning/</link>
+      <pubDate>Fri, 30 Jan 2026 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/tags/machine-learning/</guid>
       <description></description>
     </item>
     <item>
-      <title>MathJax</title>
-      <link>//localhost:1313/tags/mathjax/</link>
-      <pubDate>Sun, 14 Feb 2016 00:00:00 +0000</pubDate>
-      <guid>//localhost:1313/tags/mathjax/</guid>
+      <title>Box</title>
+      <link>//localhost:1313/tags/box/</link>
+      <pubDate>Wed, 14 May 2025 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/tags/box/</guid>
       <description></description>
     </item>
     <item>
-      <title>Pandoc</title>
-      <link>//localhost:1313/tags/pandoc/</link>
-      <pubDate>Sun, 14 Feb 2016 00:00:00 +0000</pubDate>
-      <guid>//localhost:1313/tags/pandoc/</guid>
+      <title>Bruteforce</title>
+      <link>//localhost:1313/tags/bruteforce/</link>
+      <pubDate>Wed, 14 May 2025 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/tags/bruteforce/</guid>
       <description></description>
     </item>
     <item>
-      <title>RStudio</title>
-      <link>//localhost:1313/tags/rstudio/</link>
-      <pubDate>Sun, 14 Feb 2016 00:00:00 +0000</pubDate>
-      <guid>//localhost:1313/tags/rstudio/</guid>
+      <title>File-System</title>
+      <link>//localhost:1313/tags/file-system/</link>
+      <pubDate>Wed, 14 May 2025 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/tags/file-system/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Fuzzing</title>
+      <link>//localhost:1313/tags/fuzzing/</link>
+      <pubDate>Wed, 14 May 2025 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/tags/fuzzing/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Path-Hijacking</title>
+      <link>//localhost:1313/tags/path-hijacking/</link>
+      <pubDate>Wed, 14 May 2025 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/tags/path-hijacking/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Suid</title>
+      <link>//localhost:1313/tags/suid/</link>
+      <pubDate>Wed, 14 May 2025 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/tags/suid/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Tryhackme</title>
+      <link>//localhost:1313/tags/tryhackme/</link>
+      <pubDate>Wed, 14 May 2025 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/tags/tryhackme/</guid>
       <description></description>
     </item>
   </channel>

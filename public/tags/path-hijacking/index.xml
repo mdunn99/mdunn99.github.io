@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Path-Hijacking on </title>
+    <link>//localhost:1313/tags/path-hijacking/</link>
+    <description>Recent content in Path-Hijacking on </description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 14 May 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="//localhost:1313/tags/path-hijacking/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>TryHackMe Writeup - &#34;Lookup&#34;</title>
+      <link>//localhost:1313/posts/tryhackme-lookup/</link>
+      <pubDate>Wed, 14 May 2025 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/posts/tryhackme-lookup/</guid>
+      <description>&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;&#xA;&lt;p&gt;&lt;a href=&#34;https://tryhackme.com/room/lookup&#34;&gt;Lookup&lt;/a&gt; is a CTF challenge hosted by &lt;a href=&#34;tryhackme.com&#34;&gt;TryHackMe&lt;/a&gt; that got me familiar with many different red-teaming techniques including fuzzing, path hijacking, and suid manipulation. The VM is an Apache web server running the &lt;a href=&#34;https://github.com/Studio-42/elFinder&#34;&gt;elFinder web file manager&lt;/a&gt; version 2.1.47, a version vulnerable to &lt;a href=&#34;https://www.rapid7.com/db/modules/exploit/unix/webapp/elfinder_php_connector_exiftran_cmd_injection/&#34;&gt;CVE-2019-9194&lt;/a&gt;. A Metasploit module is readily available for exploiting this vulnerability. From rapid7:&lt;/p&gt;&#xA;&lt;blockquote&gt;&#xA;&lt;p&gt;The PHP connector component allows unauthenticated users to upload&#xA;files and perform file modification operations, such as resizing and&#xA;rotation of an image. The file name of uploaded files is not validated,&#xA;allowing shell metacharacters.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

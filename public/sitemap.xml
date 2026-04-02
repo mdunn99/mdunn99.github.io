@@ -2,62 +2,59 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>//localhost:1313/</loc>
-    <lastmod>2026-04-02T01:35:58-04:00</lastmod>
+    <loc>//localhost:1313/categories/</loc>
+    <lastmod>2026-01-30T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/posts/my-first-post/</loc>
-    <lastmod>2026-04-02T01:35:58-04:00</lastmod>
+    <loc>//localhost:1313/tags/data/</loc>
+    <lastmod>2026-01-30T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/</loc>
+    <lastmod>2026-01-30T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/tags/kaggle/</loc>
+    <lastmod>2026-01-30T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/categories/machine-learning/</loc>
+    <lastmod>2026-01-30T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/tags/machine-learning/</loc>
+    <lastmod>2026-01-30T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/posts/forest_regression/</loc>
+    <lastmod>2026-01-30T00:00:00+00:00</lastmod>
   </url><url>
     <loc>//localhost:1313/posts/</loc>
-    <lastmod>2026-04-02T01:35:58-04:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/note/another-note/</loc>
-    <lastmod>2017-06-14T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/categories/</loc>
-    <lastmod>2017-06-14T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/categories/example/</loc>
-    <lastmod>2017-06-14T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/note/</loc>
-    <lastmod>2017-06-14T00:00:00+00:00</lastmod>
+    <lastmod>2026-01-30T00:00:00+00:00</lastmod>
   </url><url>
     <loc>//localhost:1313/tags/</loc>
-    <lastmod>2017-06-14T00:00:00+00:00</lastmod>
+    <lastmod>2026-01-30T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/tags/tutorial/</loc>
-    <lastmod>2017-06-14T00:00:00+00:00</lastmod>
+    <loc>//localhost:1313/tags/box/</loc>
+    <lastmod>2025-05-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/note/a-quick-note/</loc>
-    <lastmod>2017-06-13T00:00:00+00:00</lastmod>
+    <loc>//localhost:1313/tags/bruteforce/</loc>
+    <lastmod>2025-05-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/post/2016-02-14-hello-markdown/</loc>
-    <lastmod>2016-02-14T00:00:00+00:00</lastmod>
+    <loc>//localhost:1313/tags/file-system/</loc>
+    <lastmod>2025-05-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/tags/blogdown/</loc>
-    <lastmod>2016-02-14T00:00:00+00:00</lastmod>
+    <loc>//localhost:1313/tags/fuzzing/</loc>
+    <lastmod>2025-05-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/categories/hugo/</loc>
-    <lastmod>2016-02-14T00:00:00+00:00</lastmod>
+    <loc>//localhost:1313/tags/path-hijacking/</loc>
+    <lastmod>2025-05-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/tags/markdown/</loc>
-    <lastmod>2016-02-14T00:00:00+00:00</lastmod>
+    <loc>//localhost:1313/tags/suid/</loc>
+    <lastmod>2025-05-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/tags/mathjax/</loc>
-    <lastmod>2016-02-14T00:00:00+00:00</lastmod>
+    <loc>//localhost:1313/tags/tryhackme/</loc>
+    <lastmod>2025-05-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/tags/pandoc/</loc>
-    <lastmod>2016-02-14T00:00:00+00:00</lastmod>
+    <loc>//localhost:1313/posts/tryhackme-lookup/</loc>
+    <lastmod>2025-05-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/post/</loc>
-    <lastmod>2016-02-14T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/tags/rstudio/</loc>
-    <lastmod>2016-02-14T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/post/2015-07-23-lorem-ipsum/</loc>
-    <lastmod>2015-07-23T00:00:00+00:00</lastmod>
+    <loc>//localhost:1313/categories/writeup/</loc>
+    <lastmod>2025-05-14T00:00:00+00:00</lastmod>
   </url><url>
     <loc>//localhost:1313/about/</loc>
   </url>

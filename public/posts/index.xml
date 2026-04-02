@@ -6,14 +6,21 @@
     <description>Recent content in Posts on </description>
     <generator>Hugo</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 02 Apr 2026 01:35:58 -0400</lastBuildDate>
+    <lastBuildDate>Fri, 30 Jan 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="//localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>My First Post</title>
-      <link>//localhost:1313/posts/my-first-post/</link>
-      <pubDate>Thu, 02 Apr 2026 01:35:58 -0400</pubDate>
-      <guid>//localhost:1313/posts/my-first-post/</guid>
-      <description></description>
+      <title>ML - Hyperparameters and Feature Selection</title>
+      <link>//localhost:1313/posts/forest_regression/</link>
+      <pubDate>Fri, 30 Jan 2026 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/posts/forest_regression/</guid>
+      <description>&lt;p&gt;You can read the code for this project on my &lt;a href=&#34;https://github.com/mdunn99/housing-prices-competition&#34;&gt;Github&lt;/a&gt;.&lt;/p&gt;&#xA;&lt;h1 id=&#34;random-forest-regression---hyperparameters-and-feature-selection&#34;&gt;Random Forest Regression - Hyperparameters and Feature Selection&lt;/h1&gt;&#xA;&lt;p&gt;It was earlier last month when I decided to get a head-start on learning how to build machine learning models and manipulate datasets using libraries like pandas and numpy. &lt;a href=&#34;https://www.kaggle.com/&#34;&gt;Kaggle&lt;/a&gt;, the excellent dataset resource, it turns out, also provides in-depth courses and challenges to stimulate the exact kinds of things I wanted to get involved in. Their short &lt;a href=&#34;https://www.kaggle.com/learn/intro-to-machine-learning&#34;&gt;&amp;ldquo;Intro to Machine Learning&amp;rdquo; course&lt;/a&gt; was an excellent primer for building a simple model leveraging the SciKit sklearn Python libraries.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>TryHackMe Writeup - &#34;Lookup&#34;</title>
+      <link>//localhost:1313/posts/tryhackme-lookup/</link>
+      <pubDate>Wed, 14 May 2025 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/posts/tryhackme-lookup/</guid>
+      <description>&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;&#xA;&lt;p&gt;&lt;a href=&#34;https://tryhackme.com/room/lookup&#34;&gt;Lookup&lt;/a&gt; is a CTF challenge hosted by &lt;a href=&#34;tryhackme.com&#34;&gt;TryHackMe&lt;/a&gt; that got me familiar with many different red-teaming techniques including fuzzing, path hijacking, and suid manipulation. The VM is an Apache web server running the &lt;a href=&#34;https://github.com/Studio-42/elFinder&#34;&gt;elFinder web file manager&lt;/a&gt; version 2.1.47, a version vulnerable to &lt;a href=&#34;https://www.rapid7.com/db/modules/exploit/unix/webapp/elfinder_php_connector_exiftran_cmd_injection/&#34;&gt;CVE-2019-9194&lt;/a&gt;. A Metasploit module is readily available for exploiting this vulnerability. From rapid7:&lt;/p&gt;&#xA;&lt;blockquote&gt;&#xA;&lt;p&gt;The PHP connector component allows unauthenticated users to upload&#xA;files and perform file modification operations, such as resizing and&#xA;rotation of an image. The file name of uploaded files is not validated,&#xA;allowing shell metacharacters.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

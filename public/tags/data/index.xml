@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Data on </title>
+    <link>//localhost:1313/tags/data/</link>
+    <description>Recent content in Data on </description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Fri, 30 Jan 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="//localhost:1313/tags/data/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>ML - Hyperparameters and Feature Selection</title>
+      <link>//localhost:1313/posts/forest_regression/</link>
+      <pubDate>Fri, 30 Jan 2026 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/posts/forest_regression/</guid>
+      <description>&lt;p&gt;You can read the code for this project on my &lt;a href=&#34;https://github.com/mdunn99/housing-prices-competition&#34;&gt;Github&lt;/a&gt;.&lt;/p&gt;&#xA;&lt;h1 id=&#34;random-forest-regression---hyperparameters-and-feature-selection&#34;&gt;Random Forest Regression - Hyperparameters and Feature Selection&lt;/h1&gt;&#xA;&lt;p&gt;It was earlier last month when I decided to get a head-start on learning how to build machine learning models and manipulate datasets using libraries like pandas and numpy. &lt;a href=&#34;https://www.kaggle.com/&#34;&gt;Kaggle&lt;/a&gt;, the excellent dataset resource, it turns out, also provides in-depth courses and challenges to stimulate the exact kinds of things I wanted to get involved in. Their short &lt;a href=&#34;https://www.kaggle.com/learn/intro-to-machine-learning&#34;&gt;&amp;ldquo;Intro to Machine Learning&amp;rdquo; course&lt;/a&gt; was an excellent primer for building a simple model leveraging the SciKit sklearn Python libraries.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
