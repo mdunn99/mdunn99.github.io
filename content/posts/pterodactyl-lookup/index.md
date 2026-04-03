@@ -36,12 +36,15 @@ After iterating for a while through various version numbers found in phpinfo.php
 ![](yoyochaud_poc.png|781)
 ![](pterodactyl_rev_shell.png)
 
-> [!NOTE] Upgrading TTY without Python
-> I'm used to getting a clearer shell by using Python, but that's not installed n this box. We can also use the `script` command to effectively do the same thing:
-> ```bash
-> script /dev/null -c bash
-> ```
-> And then proceed with the standard backgrounding: `Ctrl+Z`, echoing the terminal and bringing the background process to the foreground: `stty raw -echo; fg`, using `reset` and `export TERM=xterm`.
+{{< callout note >}}
+**Upgrading TTY without Python**
+
+I'm used to getting a clearer shell by using Python, but that's not installed n this box. We can also use the `script` command to effectively do the same thing:
+```bash
+script /dev/null -c bash
+```
+And then proceed with the standard backgrounding: `Ctrl+Z`, echoing the terminal and bringing the background process to the foreground: `stty raw -echo; fg`, using `reset` and `export TERM=xterm`.
+{{< /callout >}}
 
 # User Privilege Escalation
 Earlier, in php.info, we discovered that a mysqli server also runs on the server on it's default port, 3306. This is confirmed when we run `env` to output environment variables to our terminal (truncated):
