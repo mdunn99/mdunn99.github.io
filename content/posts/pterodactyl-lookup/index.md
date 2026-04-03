@@ -20,7 +20,7 @@ PORT     STATE  SERVICE    VERSION
 ```
 
 I navigated to the web server, which had an unresolvable domain name: pterodactyl.htb. I added the IP to my hosts to resolve it in my browser:
-![[monitorland_page.png]]
+![](monitorland_page.png)
 
 # Reconnaissance
 I did a fuzz using SecList's raft-medium-files on the root directory, adding php and txt extensions just as a standard practice:
@@ -29,12 +29,12 @@ I did a fuzz using SecList's raft-medium-files on the root directory, adding php
 The fuzz returned files such as `index.php`, `phpinfo.php`, `global.css`, and `changelog.txt`. Some things in changelog included useful version information about the server like: "[Installed] Pterodactyl Panel **v1.11.10**", "MariaDB **11.8.3** backend." We'll also collect information in phpinfo.php [which is a valuable trove of config information](https://www.php.net/manual/en/function.phpinfo.php) related to the PHP server.
 
 I also make it a habit to enumerate through subdomains, which returned a panel.pterodactyl.htb:
-![[panel.pterodactyl.htb.png]]
+![](panel.pterodactyl.htb.png)
 
 ---
 After iterating for a while through various version numbers found in phpinfo.php for vulnerabilities, I found a critical severity exploit titled [CVE-2025-49132](https://app.opencve.io/cve/CVE-2025-49132) with arbitrary write privileges consistent with changelog.txt's claim of the server's Minecraft Pterodactyl Panel <v1.11.9. A [PoC published by YoyoChaud](https://github.com/YoyoChaud/CVE-2025-49132))allowed for easy testing.
-![[yoyochaud_poc.png|781]]
-![[pterodactyl_rev_shell.png]]
+![](yoyochaud_poc.png|781)
+![](pterodactyl_rev_shell.png)
 
 > [!NOTE] Upgrading TTY without Python
 > I'm used to getting a clearer shell by using Python, but that's not installed n this box. We can also use the `script` command to effectively do the same thing:
@@ -78,23 +78,23 @@ MariaDB [(none)]> show databases;
 ```
 
 `panel`'s `users` table contains some hashes (of which I couldn't crack):
-![[mysql_users_table.png]]
+![]mysql_users_table.png()
 
 I poked around in the root `/var/www/pterodactyl` directory and found `artisan` (INCLUDE CONTEXT HERE), of which I could potentially just create my own user using `artisan p:user:make`:
-![[artisan_user_make.png]]
+![](artisan_user_make.png)
 
 Which is then appended to the mysql users db:
-![[users_table_after_add.png]]
+![](users_table_after_add.png)
 
 So, I'll try logging into the pterodactyl panel with my new credentials (mdunn99:password). We have direct access to the other users we saw earlier in the database and can change their passwords:
-![[panel_users.png]]
-![[headmonitor_password.png]]
+![](panel_users.png)
+![](headmonitor_password.png)
 
 Upon numerous SSH attempts, I was still prompted with a password requirement, and *overwriting those users' passwords was preventing me from using it as a potential duplicate password for the SSH password.*
 
 I revisited the cracking attempt and successfully cracked user `phileasfogg3`'s bcrypt hash which matched their SSH password, and retrieved the user.txt flag.
 # Root Privilege Escalation
-As I'm checking out files with capabilities and anything that looks interesting on the file system (including the previously mentioned artisan binary), I'm running a linpeas.sh instance, which notifies me that there are some mail messages on the phileasfogg3 user. Let's read:
+As I'm checking out files with capabilities and anything that looks interesting on the file system (including the previously mentioned artisan binary), I'm running a [linpeas.sh instance](https://github.com/peass-ng/PEASS-ng/tree/master/linPEAS), which notifies me that there are some mail messages on the phileasfogg3 user. Let's read:
 
 ```bash
 From headmonitor@pterodactyl Fri Nov 07 09:15:00 2025
@@ -132,7 +132,7 @@ Per the [Arch Linux wiki:](https://wiki.archlinux.org/title/Udisks):
 > [udisksd(8)](https://man.archlinux.org/man/udisksd.8) is started on-demand by [D-Bus](https://wiki.archlinux.org/title/D-Bus "D-Bus") and should not be enabled explicitly. It can be controlled through the command-line with [udisksctl(1)](https://man.archlinux.org/man/udisksctl.1).
 
 Running `udisksctl dump` will include the version number for udisks2: **2.9.2**, which reveals a vulnerability that affects a few operating systems. To confirm if the operating system of the box is vulnerable, I read /etc/os-release: **openSUSE Leap 15.6**, which is a listed vulnerable target for udisks2 versions >= 2.9.2:
-![[2025-8067-suse.png]]
+![](2025-8067-suse.png)
 *Source: https://www.suse.com/security/cve/CVE-2025-8067.html*
 
 A PoC is published by [born0monday](https://github.com/born0monday/CVE-2025-8067). After running it, I'm unfortunately met with this error:
