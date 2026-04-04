@@ -83,7 +83,7 @@ MariaDB [(none)]> show databases;
 `panel`'s `users` table contains some hashes (of which I couldn't crack):
 ![](mysql_users_table.png)
 
-I poked around in the root `/var/www/pterodactyl` directory and found `artisan` (INCLUDE CONTEXT HERE), of which I could potentially just create my own user using `artisan p:user:make`:
+I poked around in the root `/var/www/pterodactyl` directory and found the `artisan` binary, of which I could potentially just create my own user using `artisan p:user:make`:
 ![](artisan_user_make.png)
 
 Which is then appended to the mysql users db:
