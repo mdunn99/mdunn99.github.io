@@ -119,7 +119,7 @@ username=admin&password=foo
 
   
 
-This request implies that whenever I attempt a login on the form/server, I are sending a POST request to `/login.php`, using the HTTP Content-Type: `application/x-www-form-urlencoded`.
+This request implies that whenever I attempt a login on the form/server, I am sending a POST request to `/login.php`, using the HTTP Content-Type: `application/x-www-form-urlencoded`.
 
   
 
