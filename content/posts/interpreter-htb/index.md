@@ -104,7 +104,7 @@ After using hashcat to crack our password, we can ssh into the machine using our
 # Root Privilege Escalation
 I decided to run the enumeration tool linpeas.sh once again to see if any certain files or privileges were made available exclusively to the user sedric. I went down a few rabbit holes before I fully checked out the API server being hosted on localhost port 54321 with the code available to read at `/usr/local/bin/notif.py`.
 
-![[Pasted image 20260406003655.png]]
+![](linpeas_output.png)
 
 ```python
 #!/usr/bin/env python3
