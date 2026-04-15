@@ -116,8 +116,11 @@ Once I find a way to upload a file, I'll see how I can pass in a file as an argu
 # Foothold
 This exploit requires a few non-trivial things. First, we need a "WEBROOT," the filesystem path where output files are written, which the PoC refers to as WEBROOT. Perhaps the comment we found earlier in `styles.css` can give us a clue, so initially I selected `/var/www/dev.variatype.htb/` as the world-writeable path (where our malicious `.php` will be stored). Inspecting an exposed `dashboard.php` revealed a different path, though.
 
-> [!NOTE] Specifying a Web Path
-> Our found file, 'dashboard.php' can be downloaded using the `f=` parameter to see the internal PHP. This reveals where our malicious payload can be stored so that it can be executed from the dashboard (what the PoC automates): `/var/www/portal.variatype.htb/public`
+{{< callout note >}}
+**Specifying a Web Path**
+
+Our found file, 'dashboard.php' can be downloaded using the `f=` parameter to see the internal PHP. This reveals where our malicious payload can be stored so that it can be executed from the dashboard (what the PoC automates): `/var/www/portal.variatype.htb/public`
+{{< /callout >}}
 
 The Proof of Concept will inject an XML payload into the .designspace file via a ["CDATA split"](https://cwe.mitre.org/data/definitions/91.html):
 ```xml
@@ -170,8 +173,11 @@ A Google search for "fontforge 20230101 cve zip" turns up [CVE-2024-25081](https
 ![](redhat_advisory.png)
 *[Source](https://access.redhat.com/errata/RHSA-2024:4267)*
 
-> [!NOTE] Two Bugs, Different Contexts!
-> While both taking advantage of FontForge's lack of proper filename sanitization, it's CVE-2024-25082 that leverages steve's `process_client_submissions.bak`'s explicit check for archival types, where it references a vulnerability where filenames *inside* an archive are read, rather than 25081's direct filename. Further, it's the regex check in this backup file that prevents CVE-2024-25081 from working, where 25082 allows for easy sidestepping of steve's manual sanitization.
+{{< callout note >}}
+**Two Bugs, Different Contexts!**
+
+While both taking advantage of FontForge's lack of proper filename sanitization, it's CVE-2024-25082 that leverages steve's `process_client_submissions.bak`'s explicit check for archival types, where it references a vulnerability where filenames *inside* an archive are read, rather than 25081's direct filename. Further, it's the regex check in this backup file that prevents CVE-2024-25081 from working, where 25082 allows for easy sidestepping of steve's manual sanitization.
+{{< /callout >}}
 
 Claude Sonnet 4.6 wrote an excellent proof of concept exploit inspired by [this PoC by Sploitus](https://sploitus.com/exploit?id=1134A0B1-631D-58C1-8B67-4C5C5AC1661E), opting instead for a more direct reverse shell call but passed through base64, unpacked and executed upon its zip extraction. You can view the proof of concept script here: https://gist.github.com/mdunn99/bc6a26775aedb65eb11102adedf87178.
 
