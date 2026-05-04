@@ -95,9 +95,11 @@ jobs:
       - name: Encrypt protected pages
         run: |
           while IFS= read -r path; do
+            path=$(echo "$path" | tr -d '[:space:]')
+            [ -z "$path" ] && continue
             file="./public${path}index.html"
             if [ -f "$file" ]; then
-              staticrypt "$file" "writeup1" --output "$file"
+              staticrypt "$file" --password "writeup1" --output "$file"
             fi
           done < ./public/protected-pages.txt
       - name: Upload artifact
