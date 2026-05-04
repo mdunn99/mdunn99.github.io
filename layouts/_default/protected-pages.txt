@@ -1,0 +1,2 @@
+{{ range where .Site.RegularPages "Params.protected" true }}{{ .RelPermalink }}
+{{ end }}

@@ -20,3 +20,10 @@ theme = 'xmin'
 [caches]
   [caches.images]
     dir = ':cacheDir/images'
+[outputs]
+  home = ["HTML", "RSS", "ProtectedPages"]
+[outputFormats.ProtectedPages]
+  mediaType = "text/plain"
+  baseName = "protected-pages"
+  isPlainText = true
+  notAlternative = true

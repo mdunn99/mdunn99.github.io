@@ -5,6 +5,7 @@ author: Michael Dunn
 date: 2026-04-15
 tags: [fphp,python,xml,path-traversal,xml-injection,hackthebox,htb-medium]
 categories: [writeup]
+protected: true
 ---
 
 "VariaType" is a medium-rated Linux box on HackTheBox: https://app.hackthebox.com/machines/VariaType?sort_by=created_at&sort_type=desc

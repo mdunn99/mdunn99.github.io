@@ -5,6 +5,7 @@ author: Michael Dunn
 date: 2026-04-03
 tags: [box,cve-2025-49132,cve-2025-6019,udisks2,php,loop-device,pam,dbus,hackthebox,htb-medium]
 categories: [writeup]
+protected: true
 ---
 
 Pterodactyl is a medium difficulty Linux HackTheBox machine: https://app.hackthebox.com/machines/Pterodactyl?sort_by=created_at&sort_type=desc

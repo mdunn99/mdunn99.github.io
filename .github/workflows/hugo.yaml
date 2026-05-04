@@ -90,6 +90,16 @@ jobs:
         with:
           path: ${{ runner.temp }}/hugo_cache
           key: ${{ steps.cache-restore.outputs.cache-primary-key }}
+      - name: Install StatiCrypt
+        run: npm install -g staticrypt
+      - name: Encrypt protected pages
+        run: |
+          while IFS= read -r path; do
+            file="./public${path}index.html"
+            if [ -f "$file" ]; then
+              staticrypt "$file" "writeup1" --output "$file"
+            fi
+          done < ./public/protected-pages.txt
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
