@@ -3,7 +3,7 @@ layout: post
 title: HackTheBox Writeup - "MonitorsFour"
 author: Michael Dunn
 date: 2026-05-04
-tags: [box,hackthebox,htb-medium,code-injection,f-string,xml,suid,hash-cracking,python]
+tags: [bruteforce,code-injection,php,fuzzing,docker,wsl]
 categories: [writeup]
 protected: true
 ---
