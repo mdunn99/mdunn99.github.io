@@ -35,7 +35,8 @@ forgot-password         [Status: 200, Size: 3099, Words: 164, Lines: 84, Duratio
 
 Seeing as the login page was using a basic login form handled through a single POST request (`/forgot-password`), SQL injection (SQLi) opportunities were tested for using the tool `sqlmap`. No immediate SQLi vulnerabilities were made available through this process.
 
-One of the discovered webpages :`/user`, contained query parameters in its URL which is problematic because it allows for easy fuzzing for valid queries and their values.
+One of the discovered webpages: `/user`, contained query parameters in its URL which is problematic because it allows for easy fuzzing for valid queries and their values.
+
 ![](expoesd_user_webpage.png)*monitorsfour.htb/user*
 
 Using the enumeration tool `ffuf`, a list of potential parameter names was tested against the hidden webpage, revealing the `token` parameter.
