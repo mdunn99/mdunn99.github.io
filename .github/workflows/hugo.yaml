@@ -99,7 +99,8 @@ jobs:
             [ -z "$path" ] && continue
             file="./public${path}index.html"
             if [ -f "$file" ]; then
-              staticrypt "$file" --password "writeup1" --output "$file"
+              staticrypt "$file" --password "writeup1" --output ./public/encrypted_temp.html
+              mv ./public/encrypted_temp.html "$file"
             fi
           done < ./public/protected-pages.txt
       - name: Upload artifact
